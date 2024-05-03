@@ -21,14 +21,14 @@ const FichierSVG = () => {
     <div>
       <ReactSVGPanZoom
         width={1000}
-        height={700}
+        height={446}
         tool={tool}
         onChangeTool={handleToolChange}
         value={value}
         onChangeValue={handleChangeValue}
       >
-        <svg width={1000} height={700} xmlns="http://www.w3.org/2000/svg">
-          <image xlinkHref="/plan_detaille_cimetiere.svg" width="1000" height="700" />
+        <svg width={1000} height={446} xmlns="http://www.w3.org/2000/svg">
+          <image xlinkHref="/plan_detaille_cimetiere.svg" width="1000" height="446" />
         </svg>
       </ReactSVGPanZoom>
     </div>
