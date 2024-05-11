@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { ReactSVGPanZoom, TOOL_AUTO, TOOL_NONE, TOOL_PAN, TOOL_ZOOM_IN, TOOL_ZOOM_OUT } from 'react-svg-pan-zoom';
+import { ReactSVGPanZoom,TOOL_NONE } from 'react-svg-pan-zoom';
+import GeolocationComponent from '../components/geolocationComponent';
 
 const MAP_WIDTH = 926.59839;
 const MAP_HEIGHT = 566.15918;
@@ -19,38 +20,39 @@ const lonMax = 2.348555;   // top right longitude (2.348472)
 const FichierSVG = () => {
   const [tool, setTool] = useState(TOOL_NONE);
   const [value, setValue] = useState({});
-  const [coordinates, setCoordinates] = useState({ lat: 0, lon: 0 });
+  const [userPosition, setUserPosition] = useState<{ latitude: number; longitude: number; } | null>(null);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            handleUserPositionUpdate({
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+            });
+          },
+          (error) => {
+            console.error('Error fetching geolocation:', error);
+          }
+        );
+      } else {
+        console.error('Geolocation is not supported by this browser.');
+      }
+    };
+  
+    fetchData();
+  }, []);
 
-  // MAUVAISE FORME DE CONTENU DE SITE
-  /* useEffect(() => {
-    fetch('https://www.cimetiere-russe.org/geolocation')
-      .then(response => response.json())
-      .then(data => {
-        console.log(data.latitude);
-        setCoordinates({ lat: data.position.coords.latitude, 
-          lon: data.position.coords.longitude });
-      })
-      .catch(error => console.error('Error fetching coordinates:', error));
-  }, []); */
-
+  const handleUserPositionUpdate = (position: { latitude: number; longitude: number; } | null) => {
+    setUserPosition(position);
+  };
 
   function convert(lat: number, lon: number): { x: number, y: number } { 
     const calculX = ((lon - lonMin) / (lonMax - lonMin)) * MAP_WIDTH;
     const calculY = ((latMax - lat) / (latMax - latMin)) * MAP_HEIGHT;
 
     console.log("calculX :",calculX, "calculY:", calculY)
-
-    /* let difX = MAP_WIDTH / (calculX - centerX);
-    let difY = MAP_HEIGHT / (calculY - centerY);
-
-    if (calculX < centerX)
-      difX = centerX / calculX;
-
-    if (calculY < centerY)
-      difY = centerY / calculY;
-
-    console.log("difX :",difX, "difY:", difY) */
 
     let x = calculX - (Math.abs(centerX - calculX) - (Math.abs(centerX - calculX) /1.1)) /* - (calculX * 1.1 - calculX) */;
     let y = calculY - (Math.abs(centerY - calculY) - (Math.abs(centerY - calculY) /1.6))/* - (calculY * 1.05 - calculY) */
@@ -62,7 +64,6 @@ const FichierSVG = () => {
     if (calculY >= centerY) {
       y = calculY + (Math.abs(centerY - calculY) - (Math.abs(centerY - calculY) /1.4 ))  /*  - (MAP_HEIGHT*((latMax - lat) / (latMax - latMin) / (difY))) */;
     }
-
   
     /* let x = ((lat - latMin)*(MAP_WIDTH))/(latMax - latMin);
     let y = ((lon - lonMin)*(MAP_HEIGHT))/(lonMax- lonMin);
@@ -79,7 +80,7 @@ const FichierSVG = () => {
 
   var latRG = 48.631504; var lonRG = 2.346355; // rond gauche
   
-  var lat = 48.631261; var lon = 2.343769; // entrée gauche demicercle
+  var latEG = 48.631261; var lonEG = 2.343769; // entrée gauche demicercle
 
   var latTL = 48.632848; var lonTL = 2.343715; // top left corner
 
@@ -98,7 +99,7 @@ const FichierSVG = () => {
 
   var latHG = 48.632389; var lonHG = 2.344288; 
 
-  var { x, y } = convert(lat, lon);
+  var { x :xEG, y: yEG } = convert(latEG, lonEG);
 
   var { x :xRD, y :yRD } = convert(latRD, lonRD);
 
@@ -117,6 +118,15 @@ const FichierSVG = () => {
   var {x : xTN, y: yTN} = convert(latTN, lonTN);
 
   var {x : xCBG, y: yCBG} = convert(latCBG, lonCBG);
+
+  let userX = null;
+  let userY = null;
+  if (userPosition) {
+    const { latitude, longitude } = userPosition;
+    const { x, y } = convert(latitude, longitude);
+    userX = x;
+    userY = y;
+  }
 
   const handleToolChange = (tool: any) => {
     setTool(tool);
@@ -139,7 +149,7 @@ const FichierSVG = () => {
       >
         <svg width={MAP_WIDTH} height={MAP_HEIGHT} xmlns="http://www.w3.org/2000/svg">
           <image xlinkHref="/plan_detaille_cimetiere.svg" width={MAP_WIDTH} height={MAP_HEIGHT} />
-          <circle cx={x} cy={y} r="5" fill="red" />
+          <circle cx={xEG} cy={yEG} r="5" fill="red" />
           <circle cx={xRD} cy={yRD} r="5" fill="green" />
           <circle cx={xRG} cy={yRG} r="5" fill="red" />
           <circle cx={xTL} cy={yTL} r="5" fill="red" />
@@ -150,16 +160,14 @@ const FichierSVG = () => {
           <circle cx={xTN} cy={yTN} r="5" fill="red" />
           <circle cx={xCBG} cy={yCBG} r="5" fill="red" />
 
-          <circle cx={centerX} cy={centerY} r="5" fill="blue" />
+          {userX !== null && userY !== null && (
+            <circle cx={userX} cy={userY} r="5" fill="blue" />
+          )} 
 
-          <circle cx={817} cy={240} r="2" fill="black" />
-          <circle cx={622} cy={240} r="2" fill="black" />
-          <circle cx={183} cy={433} r="2" fill="black" />
-          <circle cx={41} cy={9} r="2" fill="black" />
-          <circle cx={622} cy={445} r="2" fill="black" />
-          <circle cx={185} cy={100} r="2" fill="black" />
+          <circle cx={centerX} cy={centerY} r="5" fill="blue" />
         </svg>
       </ReactSVGPanZoom>
+      <GeolocationComponent />
     </div>
   );
 };
