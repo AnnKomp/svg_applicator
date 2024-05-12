@@ -8,6 +8,10 @@ const MAP_WIDTH = 926.59839;
 const MAP_HEIGHT = 566.15918;
 const centerX = MAP_WIDTH / 2;
 const centerY = MAP_HEIGHT / 2;
+const plusX = MAP_WIDTH / 4 * 3;
+const minX = MAP_WIDTH / 4;
+const plusY = MAP_HEIGHT / 4 * 3;
+const minY = MAP_HEIGHT / 4;
 const rotationDegrees = -17;  // rotation de la carte
 const rotationRadians = rotationDegrees * Math.PI / 180; 
 
@@ -20,7 +24,7 @@ const lonMax = 2.348555;   // top right longitude (2.348472)
 const FichierSVG = () => {
   const [tool, setTool] = useState(TOOL_NONE);
   const [value, setValue] = useState({});
-  const [userPosition, setUserPosition] = useState<{ latitude: number; longitude: number; } | null>(null);
+  const [userPosition, setUserPosition] = useState<{ latitude: number; longitude: number; accuracy: number;} | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,6 +34,7 @@ const FichierSVG = () => {
             handleUserPositionUpdate({
               latitude: position.coords.latitude,
               longitude: position.coords.longitude,
+              accuracy: position.coords.accuracy
             });
           },
           (error) => {
@@ -44,7 +49,7 @@ const FichierSVG = () => {
     fetchData();
   }, []);
 
-  const handleUserPositionUpdate = (position: { latitude: number; longitude: number; } | null) => {
+  const handleUserPositionUpdate = (position: { latitude: number; longitude: number; accuracy : number;} | null) => {
     setUserPosition(position);
   };
 
@@ -58,7 +63,10 @@ const FichierSVG = () => {
     let y = calculY - (Math.abs(centerY - calculY) - (Math.abs(centerY - calculY) /1.6))/* - (calculY * 1.05 - calculY) */
 
     if (calculX >= centerX) {
-      x = calculX + (Math.abs(centerX - calculX) - (Math.abs(centerX - calculX) /1.4))   /* + (MAP_WIDTH*((lon - lonMin) / (lonMax - lonMin) / difX) ) */;
+      x = calculX + (Math.abs(centerX - calculX) - (Math.abs(centerX - calculX) /1.45))   /* + (MAP_WIDTH*((lon - lonMin) / (lonMax - lonMin) / difX) ) */;
+    }
+    if(calculX >= plusX) {
+      x = calculX + (Math.abs(centerX - calculX) - (Math.abs(centerX - calculX) /1.35))   /* + (MAP_WIDTH*((lon - lonMin) / (lonMax - lonMin) / difX) ) */;
     }
 
     if (calculY >= centerY) {
@@ -75,17 +83,18 @@ const FichierSVG = () => {
   
     return { x: xRotated, y: yRotated };
   }
-  
-  /* var latRD = 48.631283; var lonRD = 2.347382; //rond droit 
+  /* 
+  var latRD = 48.631283; var lonRD = 2.347382; //rond droit 
   var latRG = 48.631504; var lonRG = 2.346355; // rond gauche
   var latEG = 48.631261; var lonEG = 2.343769; // entrée gauche demicercle
   var latTL = 48.632848; var lonTL = 2.343715; // top left corner
-  var latCB = 48.630756; var lonCB = 2.346026; // carrefour bas
+  var latCB = 48.630750; var lonCB = 2.346030; // carrefour bas
   var latC =  48.631444; var lonC = 2.345624; //doit etre centre
   var latCHD = 48.632216; var lonCHD = 2.345094; //cercle en haut de l'eglise
   var latTN = 48.630571; var lonTN = 2.347068; // a coté de tombe de Noureev
   var latCBG = 48.631039; var lonCBG = 2.344579; // carrefour en bas à gauche
   var latHG = 48.632389; var lonHG = 2.344288; 
+
 
   var { x :xEG, y: yEG } = convert(latEG, lonEG);
   var { x :xRD, y :yRD } = convert(latRD, lonRD);
@@ -96,7 +105,12 @@ const FichierSVG = () => {
   var {x : xHG, y: yHG} = convert(latHG, lonHG);
   var {x : xCHD, y: yCHD} = convert(latCHD, lonCHD);
   var {x : xTN, y: yTN} = convert(latTN, lonTN);
-  var {x : xCBG, y: yCBG} = convert(latCBG, lonCBG); */
+  var {x : xCBG, y: yCBG} = convert(latCBG, lonCBG); 
+
+
+  var latM = 48.63176747149073; var lonM = 2.343950819486185;
+  var{x : xM, y: yM} = convert(latM,lonM)
+  */
 
   let userX = null;
   let userY = null;
@@ -128,7 +142,7 @@ const FichierSVG = () => {
       >
         <svg width={MAP_WIDTH} height={MAP_HEIGHT} xmlns="http://www.w3.org/2000/svg">
           <image xlinkHref="/plan_detaille_cimetiere.svg" width={MAP_WIDTH} height={MAP_HEIGHT} />
-          {/* <circle cx={xEG} cy={yEG} r="5" fill="red" />
+           {/* <circle cx={xEG} cy={yEG} r="5" fill="red" />
           <circle cx={xRD} cy={yRD} r="5" fill="green" />
           <circle cx={xRG} cy={yRG} r="5" fill="red" />
           <circle cx={xTL} cy={yTL} r="5" fill="red" />
@@ -138,12 +152,19 @@ const FichierSVG = () => {
           <circle cx={xCHD} cy={yCHD} r="5" fill="red" />
           <circle cx={xTN} cy={yTN} r="5" fill="red" />
           <circle cx={xCBG} cy={yCBG} r="5" fill="red" />
- */}
-          {userX !== null && userY !== null && (
-            <circle cx={userX} cy={userY} r="5" fill="red" />
-          )} 
+ 
+         <circle cx={xM} cy={yM} r="5" fill="red"/> 
 
-          {/* <circle cx={centerX} cy={centerY} r="5" fill="blue" /> */}
+           */}
+          {userX !== null && userY !== null && (
+            <circle cx={userX} cy={userY} r="5" fill="orange" />
+          )} 
+{/* 
+          <circle cx={centerX} cy={centerY} r="5" fill="blue" />
+          <circle cx={plusX} cy={centerY} r="5" fill="blue" />
+          <circle cx={centerX} cy={plusY} r="5" fill="blue" />
+          <circle cx={minX} cy={centerY} r="5" fill="blue" />
+          <circle cx={centerX} cy={minY} r="5" fill="blue" /> */}
         </svg>
       </ReactSVGPanZoom>
       <GeolocationComponent />

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 const GeolocationComponent = () => {
-  const [location, setLocation] = useState<{ latitude: number, longitude: number } | null>(null);
+  const [location, setLocation] = useState<{ latitude: number, longitude: number, accuracy : number; } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -15,7 +15,8 @@ const GeolocationComponent = () => {
         (position) => {
           setLocation({
             latitude: position.coords.latitude,
-            longitude: position.coords.longitude
+            longitude: position.coords.longitude,
+            accuracy: position.coords.accuracy
           });
           setLoading(false);
         },
@@ -42,6 +43,7 @@ const GeolocationComponent = () => {
     <div>
       <p>Широта: {location.latitude}</p>
       <p>Долгота: {location.longitude}</p>
+      <p>Точность: {location.accuracy} метров</p>
     </div>
   ) : null;
 };
