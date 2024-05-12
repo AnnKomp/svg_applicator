@@ -157,7 +157,7 @@ const FichierSVG = () => {
 
            */}
           {userX !== null && userY !== null && (
-            <circle cx={userX} cy={userY} r="5" fill="orange" />
+            <circle cx={userX} cy={userY} r="5" fill="red" />
           )} 
 {/* 
           <circle cx={centerX} cy={centerY} r="5" fill="blue" />
