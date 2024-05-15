@@ -26,13 +26,13 @@ const GeolocationComponent = () => {
         }
       );
     } else {
-      setError('Геолокация не поддерживается вашим браузером');
+      setError('Geolocation is not supported by this browser');
       setLoading(false);
     }
   };
 
   if (loading) {
-    return <p>Загрузка...</p>;
+    return <p>Loading...</p>;
   }
 
   if (error) {
@@ -41,9 +41,9 @@ const GeolocationComponent = () => {
 
   return location ? (
     <div>
-      <p>Широта: {location.latitude}</p>
-      <p>Долгота: {location.longitude}</p>
-      <p>Точность: {location.accuracy} метров</p>
+      <p>Latitude: {location.latitude}</p>
+      <p>Longitude: {location.longitude}</p>
+      <p>Accuracy: {location.accuracy} meters</p>
     </div>
   ) : null;
 };
