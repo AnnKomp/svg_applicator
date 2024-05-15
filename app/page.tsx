@@ -4,14 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { ReactSVGPanZoom,TOOL_NONE } from 'react-svg-pan-zoom';
 import Modal from 'react-modal';
 
-const MAP_WIDTH = 926.59839;
+/* const MAP_WIDTH = 926.59839;
 const MAP_HEIGHT = 566.15918;
 const centerX = MAP_WIDTH / 2;
 const centerY = MAP_HEIGHT / 2;
 const plusX = MAP_WIDTH / 4 * 3;
 const minX = MAP_WIDTH / 4;
 const plusY = MAP_HEIGHT / 4 * 3;
-const minY = MAP_HEIGHT / 4;
+const minY = MAP_HEIGHT / 4; */
 const rotationDegrees = -17;  // rotation de la carte
 const rotationRadians = rotationDegrees * Math.PI / 180; 
 const minAccuracy = 10;
@@ -34,7 +34,30 @@ const FichierSVG = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 }); 
 
+useEffect(() => {
+  const updateDimensions = () => {
+    setDimensions({ width: window.innerWidth, height: window.innerHeight });
+  };
+  updateDimensions();
+  window.addEventListener('resize', updateDimensions); 
+
+  return () => {
+    window.removeEventListener('resize', updateDimensions); 
+  };
+}, []); 
+
+
+  const MAP_HEIGHT = dimensions.height;
+  const MAP_WIDTH = dimensions.width;
+  const centerX = dimensions.width / 2;
+  const centerY = dimensions.height / 2;
+  const plusX = dimensions.width / 4 * 3;
+  const minX = dimensions.width / 4;
+  const plusY = dimensions.height / 4 * 3;
+  const minY = dimensions.height / 4;
+  
   useEffect(() => {
     const fetchData = () => {
       if (navigator.geolocation) {
@@ -153,15 +176,22 @@ const FichierSVG = () => {
     setModalIsOpen(false);
   };
 
+  const minScale = Math.min(dimensions.width / MAP_WIDTH, dimensions.height / MAP_HEIGHT);
+
   return (
-    <div>
-      <ReactSVGPanZoom    
+    <div style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
+      <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+        <ReactSVGPanZoom    
         width={MAP_WIDTH}
         height={MAP_HEIGHT}
         tool={tool}
         onChangeTool={handleToolChange}
         value={value}
         onChangeValue={handleChangeValue}
+        detectAutoPan={false}
+        detectWheel={false}
+        /* minScale={minScale}
+        maxScale={2} */
       >
         <svg width={MAP_WIDTH} height={MAP_HEIGHT} xmlns="http://www.w3.org/2000/svg">
           <image xlinkHref="/plan_detaille_cimetiere.svg" width={MAP_WIDTH} height={MAP_HEIGHT} />
@@ -198,6 +228,7 @@ const FichierSVG = () => {
             style={{ cursor: 'pointer' }}
           />
            <text 
+            id="A"
             x={centerX - 53 + 10} 
             y={centerY + 120 + 17} 
             fill="black" 
@@ -221,6 +252,7 @@ const FichierSVG = () => {
             style={{ cursor: 'pointer' }}
           />
            <text 
+            id="B"
             x={centerX + 240} 
             y={centerY + 120} 
             fill="black" 
@@ -244,6 +276,7 @@ const FichierSVG = () => {
             style={{ cursor: 'pointer' }}
           />
            <text 
+            id="C"
             x={centerX + 173} 
             y={centerY - 45} 
             fill="black" 
@@ -268,6 +301,7 @@ const FichierSVG = () => {
             style={{ cursor: 'pointer' }}
           />
            <text 
+            id="D"
             x={centerX + 29} 
             y={centerY - 4} 
             fill="black" 
@@ -291,6 +325,7 @@ const FichierSVG = () => {
             style={{ cursor: 'pointer' }}
           />
            <text 
+            id="E"
             x={centerX - 25 + 13} 
             y={centerY + 7 + 20} 
             fill="black" 
@@ -325,6 +360,7 @@ const FichierSVG = () => {
           style={{ cursor: 'pointer' }}
         />
           <text 
+            id="F"
             x={centerX - 147} 
             y={centerY + 71} 
             fill="black" 
@@ -348,12 +384,14 @@ const FichierSVG = () => {
             style={{ cursor: 'pointer' }}
           />
           <circle 
+            id="1"
             cx={centerX - 332} 
             cy={centerY + 129} 
             r="5" 
             fill={popularColor} 
             onClick={handleRectClick}  />
           <text 
+            id="1"
             x={centerX - 332} 
             y={centerY +129} 
             fill="white" 
@@ -363,6 +401,37 @@ const FichierSVG = () => {
             onClick={handleRectClick} 
           >
             1
+          </text>
+
+          <rect 
+            id="2"
+            x={centerX - 263} 
+            y={centerY + 114} 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="2"
+            cx={centerX - 268} 
+            cy={centerY + 114} 
+            r="5" 
+            fill={popularColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="2"
+            x={centerX - 268} 
+            y={centerY +114} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            2
           </text>
 
           <rect 
@@ -377,12 +446,14 @@ const FichierSVG = () => {
             style={{ cursor: 'pointer' }}
           />
           <circle 
+            id="33"
             cx={centerX - 222} 
             cy={centerY + 75} 
             r="5" 
             fill={popularColor}
             onClick={handleRectClick}   />
           <text 
+            id="33"
             x={centerX - 222} 
             y={centerY + 75} 
             fill="white" 
@@ -420,7 +491,7 @@ const FichierSVG = () => {
       >
         <button 
         onClick={handleCloseModal}>
-          Pour le moment il n'y a pas d'information disponible
+          Pour le moment il n y a pas d information disponible
           </button>
       </Modal>
 
@@ -436,6 +507,7 @@ const FichierSVG = () => {
         </div>
       )}
 
+    </div>
     </div>
   );
 };
