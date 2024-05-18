@@ -190,7 +190,7 @@ useEffect(() => {
           PLAN DE LA CIMETIERE DE STE GENEVIEVE DES BOIS
         </h1>
         <p>
-          appuiez sur un numéro pour avoir l'information !
+          appuiez sur un numéro pour avoir l information !
         </p>
         
         <ReactSVGPanZoom    
