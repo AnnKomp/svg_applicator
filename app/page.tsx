@@ -3,15 +3,16 @@
 import React, { useState, useEffect } from 'react';
 import { ReactSVGPanZoom,TOOL_NONE } from 'react-svg-pan-zoom';
 import Modal from 'react-modal';
+import { Poppins } from 'next/font/google';
 
-/* const MAP_WIDTH = 926.59839;
+const MAP_WIDTH = 926.59839;
 const MAP_HEIGHT = 566.15918;
 const centerX = MAP_WIDTH / 2;
 const centerY = MAP_HEIGHT / 2;
 const plusX = MAP_WIDTH / 4 * 3;
 const minX = MAP_WIDTH / 4;
 const plusY = MAP_HEIGHT / 4 * 3;
-const minY = MAP_HEIGHT / 4; */
+const minY = MAP_HEIGHT / 4; 
 const rotationDegrees = -17;  // rotation de la carte
 const rotationRadians = rotationDegrees * Math.PI / 180; 
 const minAccuracy = 10;
@@ -23,8 +24,10 @@ const lonMax = 2.348555;   // top right longitude (2.348472)
 
 const testColor = "orange";
 const popularColor = "red";
-const russColor = "green";
+const russColor = "#13B663";
 const blockColor = "yellow";
+
+const rayon = 5;
 
 
 const FichierSVG = () => {
@@ -34,7 +37,9 @@ const FichierSVG = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 }); 
+  
+  //a partir de la
+  /* const [dimensions, setDimensions] = useState({ width: 0, height: 0 }); 
 
 useEffect(() => {
   const updateDimensions = () => {
@@ -56,7 +61,9 @@ useEffect(() => {
   const plusX = dimensions.width / 4 * 3;
   const minX = dimensions.width / 4;
   const plusY = dimensions.height / 4 * 3;
-  const minY = dimensions.height / 4;
+  const minY = dimensions.height / 4; */
+
+  //jusqu'ici
   
   useEffect(() => {
     const fetchData = () => {
@@ -176,11 +183,16 @@ useEffect(() => {
     setModalIsOpen(false);
   };
 
-  const minScale = Math.min(dimensions.width / MAP_WIDTH, dimensions.height / MAP_HEIGHT);
-
+  
   return (
-    <div style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
-      <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+      <div>
+        <h1 className={`mb-4 text-xl md:text-2xl`}>
+          PLAN DE LA CIMETIERE DE STE GENEVIEVE DES BOIS
+        </h1>
+        <p>
+          appuiez sur un numéro pour avoir l'information !
+        </p>
+        
         <ReactSVGPanZoom    
         width={MAP_WIDTH}
         height={MAP_HEIGHT}
@@ -190,8 +202,6 @@ useEffect(() => {
         onChangeValue={handleChangeValue}
         detectAutoPan={false}
         detectWheel={false}
-        /* minScale={minScale}
-        maxScale={2} */
       >
         <svg width={MAP_WIDTH} height={MAP_HEIGHT} xmlns="http://www.w3.org/2000/svg">
           <image xlinkHref="/plan_detaille_cimetiere.svg" width={MAP_WIDTH} height={MAP_HEIGHT} />
@@ -207,20 +217,20 @@ useEffect(() => {
           <circle cx={xCBG} cy={yCBG} r="5" fill={testColor} />
   */}
           {userX !== null && userY !== null && (
-            <circle cx={userX} cy={userY} r="5" fill="red" />
+            <circle cx={userX} cy={userY} r={rayon} fill="red" />
           )} 
-{/* 
-          <circle cx={centerX} cy={centerY} r="5" fill="blue" />
-          <circle cx={plusX} cy={centerY} r="5" fill="blue" />
-          <circle cx={centerX} cy={plusY} r="5" fill="blue" />
-          <circle cx={minX} cy={centerY} r="5" fill="blue" />
-          <circle cx={centerX} cy={minY} r="5" fill="blue" />  */}
+
+          {/* <circle cx={centerX} cy={centerY} r={rayon} fill="blue" />
+          <circle cx={plusX} cy={centerY} r={rayon} fill="blue" />
+          <circle cx={centerX} cy={plusY} r={rayon} fill="blue" />
+          <circle cx={minX} cy={centerY} r={rayon} fill="blue" />
+          <circle cx={centerX} cy={minY} r={rayon} fill="blue" />  */}
 
           <rect 
             id="A"
             x={centerX - 53} 
             y={centerY + 125} 
-            width="20" 
+            width="21" 
             height="20" 
             fill={blockColor}
             opacity={0.5}
@@ -230,9 +240,9 @@ useEffect(() => {
            <text 
             id="A"
             x={centerX - 53 + 10} 
-            y={centerY + 120 + 17} 
+            y={centerY + 125 + 11} 
             fill="black" 
-            fontSize="16" 
+            fontSize="14" 
             textAnchor="middle" 
             alignmentBaseline="middle"
             onClick={handleRectClick} 
@@ -292,9 +302,9 @@ useEffect(() => {
           <rect 
             id="D"
             x={centerX + 18 } 
-            y={centerY - 12} 
+            y={centerY - 9} 
             width="20.5" 
-            height="13" 
+            height="11" 
             fill={blockColor}
             opacity={0.5}
             onClick={handleRectClick} 
@@ -303,9 +313,9 @@ useEffect(() => {
            <text 
             id="D"
             x={centerX + 29} 
-            y={centerY - 4} 
+            y={centerY - 2.5} 
             fill="black" 
-            fontSize="14" 
+            fontSize="12" 
             textAnchor="middle" 
             alignmentBaseline="middle"
             onClick={handleRectClick} 
@@ -329,7 +339,7 @@ useEffect(() => {
             x={centerX - 25 + 13} 
             y={centerY + 7 + 20} 
             fill="black" 
-            fontSize="16" 
+            fontSize="14" 
             textAnchor="middle" 
             alignmentBaseline="middle"
             onClick={handleRectClick} 
@@ -364,7 +374,7 @@ useEffect(() => {
             x={centerX - 147} 
             y={centerY + 71} 
             fill="black" 
-            fontSize="16" 
+            fontSize="14" 
             textAnchor="middle" 
             alignmentBaseline="middle"
             onClick={handleRectClick} 
@@ -387,7 +397,7 @@ useEffect(() => {
             id="1"
             cx={centerX - 332} 
             cy={centerY + 129} 
-            r="5" 
+            r={rayon} 
             fill={popularColor} 
             onClick={handleRectClick}  />
           <text 
@@ -418,7 +428,7 @@ useEffect(() => {
             id="2"
             cx={centerX - 268} 
             cy={centerY + 114} 
-            r="5" 
+            r={rayon}
             fill={popularColor} 
             onClick={handleRectClick}  />
           <text 
@@ -432,6 +442,937 @@ useEffect(() => {
             onClick={handleRectClick} 
           >
             2
+          </text>
+
+          <rect 
+            id="3"
+            x={centerX - 189.5} 
+            y={centerY + 131} 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="3"
+            cx={centerX - 189.5 - 5} 
+            cy={centerY + 134} 
+            r={rayon} 
+            fill={popularColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="3"
+            x={centerX - 189.5 - 5} 
+            y={centerY + 134} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            3
+          </text>
+
+          <rect 
+            id="4"
+            x={centerX - 154} 
+            y={centerY + 232.5} 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="4"
+            cx={centerX - 154 - 5} 
+            cy={centerY + 232.5 + 5} 
+            r={rayon} 
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="4"
+            x={centerX - 154 - 5} 
+            y={centerY + 232.5 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            4
+          </text>
+
+          <rect 
+            id="5"
+            x={centerX - 105} 
+            y={centerY + 142} 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="5"
+            cx={centerX - 105 - 5} 
+            cy={centerY + 142 + 5} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="5"
+            x={centerX - 105 - 5} 
+            y={centerY + 142 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            5
+          </text>
+
+          <rect 
+            id="6"
+            x={centerX - 113} 
+            y={centerY + 124} 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="6"
+            cx={centerX - 113 - 5} 
+            cy={centerY + 124 + 5} 
+            r={rayon}
+            fill={popularColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="6"
+            x={centerX - 113 - 5} 
+            y={centerY + 124 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            6
+          </text>
+
+          <rect 
+            id="7"
+            x={centerX - 85} 
+            y={centerY + 182} 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="7"
+            cx={centerX - 85 - 5} 
+            cy={centerY + 182 + 5} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="7"
+            x={centerX - 85 - 5} 
+            y={centerY + 182 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            7
+          </text>
+
+          <rect 
+            id="8"
+            x={centerX - 53} 
+            y={centerY + 264} 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="8"
+            cx={centerX - 53 + 10} 
+            cy={centerY + 264 + 5} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="8"
+            x={centerX - 53 + 10} 
+            y={centerY + 264 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            8
+          </text>
+
+          <rect 
+            id="9"
+            x={centerX + 25} 
+            y={centerY + 142} 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="9"
+            cx={centerX + 25 - 5} 
+            cy={centerY + 142 + 5} 
+            r={rayon}
+            fill={popularColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="9"
+            x={centerX + 25 - 5} 
+            y={centerY + 142 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            9
+          </text>
+
+          <rect 
+            id="10"
+            x={centerX + 170.5} 
+            y={centerY + 117} 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="10"
+            cx={centerX + 170.5 - 5} 
+            cy={centerY + 117 + 5} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="10"
+            x={centerX + 170.5 - 5} 
+            y={centerY + 117 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            10
+          </text>
+
+          <rect 
+            id="11"
+            x={centerX + 260.5} 
+            y={centerY + 86} 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="11"
+            cx={centerX + 260.5 + 10} 
+            cy={centerY + 86 + 5} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="11"
+            x={centerX + 260.5 + 10} 
+            y={centerY + 86 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            11
+          </text>
+
+          <rect 
+            id="12"
+            x={centerX + 260.5} 
+            y={centerY + 131} 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="12"
+            cx={centerX + 260.5 + 10} 
+            cy={centerY + 131 + 5} 
+            r={rayon}
+            fill={popularColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="12"
+            x={centerX + 260.5 + 10} 
+            y={centerY + 131 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            12
+          </text>
+
+          <rect 
+            id="13"
+            x={centerX + 282} 
+            y={centerY + 142} 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="13"
+            cx={centerX + 282 + 10} 
+            cy={centerY + 142 + 5} 
+            r={rayon}
+            fill={popularColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="13"
+            x={centerX + 282 + 10} 
+            y={centerY + 142 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            13
+          </text>
+
+          <rect 
+            id="14"
+            x={centerX + 268.5} 
+            y={centerY + 77} 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="14"
+            cx={centerX + 268.5 + 10} 
+            cy={centerY + 77} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="14"
+            x={centerX + 268.5 + 10} 
+            y={centerY + 77} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            14
+          </text>
+
+          <rect 
+            id="15"
+            x={centerX + 330.5} 
+            y={centerY + 42} 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="15"
+            cx={centerX + 330.5 - 5} 
+            cy={centerY + 42 + 5} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="15"
+            x={centerX + 330.5 - 5} 
+            y={centerY + 42 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            15
+          </text>
+
+          <rect 
+            id="16"
+            x={centerX + 254.5} 
+            y={centerY + 45.5} 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="16"
+            cx={centerX + 254.5 + 7} 
+            cy={centerY + 45.5 + 5} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="16"
+            x={centerX + 254.5 + 7} 
+            y={centerY + 45.5 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            16
+          </text>
+
+          <rect 
+            id="17"
+            x={centerX + 246.5} 
+            y={centerY + 63} 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="17"
+            cx={centerX + 246.5 - 3} 
+            cy={centerY + 63 + 5} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="17"
+            x={centerX + 246.5 - 3} 
+            y={centerY + 63 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            17
+          </text>
+
+          <rect 
+            id="18"
+            x={centerX + 204.5} 
+            y={centerY - 37} 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="18"
+            cx={centerX + 204.5 - 3} 
+            cy={centerY - 37 + 5} 
+            r={rayon}
+            fill={popularColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="18"
+            x={centerX + 204.5 - 3} 
+            y={centerY - 37 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            18
+          </text>
+          
+          <rect 
+            id="19"
+            x={centerX + 138.5} 
+            y={centerY + 42} 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="19"
+            cx={centerX + 138.5 - 3} 
+            cy={centerY + 42 + 5} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="19"
+            x={centerX + 138.5 - 3} 
+            y={centerY + 42 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            19
+          </text>
+
+          <rect 
+            id="20"
+            x={centerX + 138.5} 
+            y={centerY + 89.5} 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="20"
+            cx={centerX + 138.5 - 3} 
+            cy={centerY + 89.5 + 5} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="20"
+            x={centerX + 138.5 - 3} 
+            y={centerY + 89.5 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            20
+          </text>
+
+          
+          <rect 
+            id="21"
+            x={centerX + 52.5} 
+            y={centerY + 17.5} 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="21"
+            cx={centerX + 52.5 + 9} 
+            cy={centerY + 17.5 + 5} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="21"
+            x={centerX + 52.5 + 9} 
+            y={centerY + 17.5 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            21
+          </text>
+
+          <rect 
+            id="22"
+            x={centerX + 18.5} 
+            y={centerY - 23} 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="22"
+            cx={centerX + 18.5 + 9} 
+            cy={centerY - 23 + 5} 
+            r={rayon}
+            fill={popularColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="22"
+            x={centerX + 18.5 + 9} 
+            y={centerY - 23 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            22
+          </text>
+
+          <rect 
+            id="23"
+            x={centerX + 18.5} 
+            y={centerY + 10.5 } 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="23"
+            cx={centerX + 18.5 + 9} 
+            cy={centerY + 10 + 5} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="23"
+            x={centerX + 18.5 + 9} 
+            y={centerY + 10 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            23
+          </text>
+
+          <rect 
+            id="24"
+            x={centerX + 18.5} 
+            y={centerY + 28 } 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="24"
+            cx={centerX + 18.5 + 9} 
+            cy={centerY + 28 + 5} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="24"
+            x={centerX + 18.5 + 9} 
+            y={centerY + 28 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            24
+          </text>
+
+          <rect 
+            id="25"
+            x={centerX - 53.5} 
+            y={centerY - 2 } 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="25"
+            cx={centerX - 53.5 + 9} 
+            cy={centerY - 2 + 5} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="25"
+            x={centerX - 53.5 + 9} 
+            y={centerY - 2 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            25
+          </text>
+
+          <rect 
+            id="26"
+            x={centerX - 53.5} 
+            y={centerY + 17.5 } 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="26"
+            cx={centerX - 53.5 + 9} 
+            cy={centerY + 17.5 + 5} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="26"
+            x={centerX - 53.5 + 9} 
+            y={centerY + 17.5 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            26
+          </text>
+
+          <rect 
+            id="27"
+            x={centerX - 53.5} 
+            y={centerY - 61.5 } 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="27"
+            cx={centerX - 53.5 + 9} 
+            cy={centerY - 61.5 + 5} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="27"
+            x={centerX - 53.5 + 9} 
+            y={centerY - 61.5 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            27
+          </text>
+
+          <rect 
+            id="28"
+            x={centerX - 83.5} 
+            y={centerY - 77.5 } 
+            width="3.5" 
+            height="5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="28"
+            cx={centerX - 83.5 + 9} 
+            cy={centerY - 77.5  - 3} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="28"
+            x={centerX - 83.5 + 9} 
+            y={centerY - 77.5 - 3} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            28
+          </text>
+
+          <rect 
+            id="29"
+            x={centerX - 118.5} 
+            y={centerY - 77.5 } 
+            width="3.5" 
+            height="5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="29"
+            cx={centerX - 118.5 + 9} 
+            cy={centerY - 77.5  - 3} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="29"
+            x={centerX - 118.5 + 9} 
+            y={centerY - 77.5 - 3} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            29
+          </text>
+
+          <rect 
+            id="30"
+            x={centerX - 167.5} 
+            y={centerY + 21 } 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="30"
+            cx={centerX - 167.5 + 9} 
+            cy={centerY + 21  - 3} 
+            r={rayon}
+            fill={popularColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="30"
+            x={centerX - 167.5 + 9} 
+            y={centerY + 21 - 3} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            30
+          </text>
+
+          <rect 
+            id="31"
+            x={centerX - 161.5} 
+            y={centerY + 38.5 } 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="31"
+            cx={centerX - 161.5 + 9} 
+            cy={centerY + 38.5  - 3} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="31"
+            x={centerX - 161.5 + 9} 
+            y={centerY + 38.5 - 3} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            31
+          </text>
+
+          <rect 
+            id="32"
+            x={centerX - 139.5} 
+            y={centerY + 89.5 } 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="32"
+            cx={centerX - 139.5 + 9} 
+            cy={centerY + 89.5  - 3} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="32"
+            x={centerX - 139.5 + 9} 
+            y={centerY + 89.5 - 3} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            32
           </text>
 
           <rect 
@@ -449,7 +1390,7 @@ useEffect(() => {
             id="33"
             cx={centerX - 222} 
             cy={centerY + 75} 
-            r="5" 
+            r={rayon}
             fill={popularColor}
             onClick={handleRectClick}   />
           <text 
@@ -465,9 +1406,816 @@ useEffect(() => {
             33
           </text>
 
-      
+          <rect 
+            id="34"
+            x={centerX - 213} 
+            y={centerY + 49 } 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="34"
+            cx={centerX - 213 - 3} 
+            cy={centerY + 49 - 3} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="34"
+            x={centerX - 213 - 3} 
+            y={centerY + 49 - 3} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            34
+          </text>
+
+          <rect 
+            id="35"
+            x={centerX - 235} 
+            y={centerY - 15.5 } 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="35"
+            cx={centerX - 235 - 3} 
+            cy={centerY - 15.5 - 3} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="35"
+            x={centerX - 235 - 3} 
+            y={centerY - 15.5- 3} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            35
+          </text>
+
+          <rect 
+            id="36"
+            x={centerX - 263} 
+            y={centerY - 64.5 } 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="36"
+            cx={centerX - 263 - 3} 
+            cy={centerY - 64.5 - 3} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="36"
+            x={centerX - 263 - 3} 
+            y={centerY - 64.5- 3} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            36
+          </text>
+
+          <rect 
+            id="37"
+            x={centerX - 247.5} 
+            y={centerY - 77.5 } 
+            width="3.5" 
+            height="5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="37"
+            cx={centerX - 247.5 + 6} 
+            cy={centerY - 77.5  - 3} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="37"
+            x={centerX - 247.5 + 6} 
+            y={centerY - 77.5 - 3} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            37
+          </text>
+
+          <rect 
+            id="38"
+            x={centerX - 136} 
+            y={centerY - 95.5 } 
+            width="6" 
+            height="3.5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="38"
+            cx={centerX - 136 - 3} 
+            cy={centerY - 95.5 - 3} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="38"
+            x={centerX - 136 - 3} 
+            y={centerY - 95.5 - 3} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            38
+          </text>
+
+          <rect 
+            id="39"
+            x={centerX - 160} 
+            y={centerY - 164 } 
+            width="3.5" 
+            height="6" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="39"
+            cx={centerX - 160 + 8} 
+            cy={centerY - 164 + 5} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="39"
+            x={centerX - 160 + 8} 
+            y={centerY - 164 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            39
+          </text>
+
+          <rect 
+            id="40"
+            x={centerX - 181} 
+            y={centerY - 170 } 
+            width="3.5" 
+            height="6" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="40"
+            cx={centerX - 181 + 8} 
+            cy={centerY - 170 + 5} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="40"
+            x={centerX - 181 + 8} 
+            y={centerY - 170 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            40
+          </text>
+
+          <rect 
+            id="41"
+            x={centerX - 258} 
+            y={centerY - 170 } 
+            width="3.5" 
+            height="6" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="41"
+            cx={centerX - 258 + 8} 
+            cy={centerY - 170 + 5} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="41"
+            x={centerX - 258 + 8} 
+            y={centerY - 170 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            41
+          </text>
+
+          <rect 
+            id="42"
+            x={centerX - 247.5} 
+            y={centerY - 133 } 
+            width="3.5" 
+            height="6" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="42"
+            cx={centerX - 247.5 + 8} 
+            cy={centerY - 133 + 5} 
+            r={rayon}
+            fill={popularColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="42"
+            x={centerX - 247.5 + 8} 
+            y={centerY - 133 + 5} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            42
+          </text>
+
+          <rect 
+            id="43"
+            x={centerX - 216} 
+            y={centerY - 133 } 
+            width="3.5" 
+            height="6" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="43"
+            cx={centerX - 216 - 3} 
+            cy={centerY - 133 + 7} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="43"
+            x={centerX - 216 - 3} 
+            y={centerY - 133 + 7} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            43
+          </text>
+
+          <rect 
+            id="44"
+            x={centerX - 142.5} 
+            y={centerY - 146 } 
+            width="3.5" 
+            height="6" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="44"
+            cx={centerX - 142 - 3} 
+            cy={centerY - 146 + 7} 
+            r={rayon}
+            fill={popularColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="44"
+            x={centerX - 142 - 3} 
+            y={centerY - 146 + 7} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            44
+          </text>
+
+          <rect 
+            id="45"
+            x={centerX - 268.5} 
+            y={centerY - 109.5 } 
+            width="3.5" 
+            height="6" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="45"
+            cx={centerX - 268.5 - 3} 
+            cy={centerY - 109.5 + 7} 
+            r={rayon}
+            fill={popularColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="45"
+            x={centerX - 268.5 - 3} 
+            y={centerY - 109.5 + 7} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            45
+          </text>
+
+          <rect 
+            id="46"
+            x={centerX - 292} 
+            y={centerY - 85.5 } 
+            width="7" 
+            height="5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="46"
+            cx={centerX - 292 - 3} 
+            cy={centerY - 85.5 + 7} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="46"
+            x={centerX - 292 - 3} 
+            y={centerY - 85.5 + 7} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            46
+          </text>
+
+          <rect 
+            id="47"
+            x={centerX - 348} 
+            y={centerY - 85.5 } 
+            width="3.5" 
+            height="5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="47"
+            cx={centerX - 348 - 3} 
+            cy={centerY - 85.5 + 7} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="47"
+            x={centerX - 348 - 3} 
+            y={centerY - 85.5 + 7} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            47
+          </text>
+
+          <rect 
+            id="48"
+            x={centerX - 348} 
+            y={centerY - 103 } 
+            width="3.5" 
+            height="6" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="48"
+            cx={centerX - 348 + 7} 
+            cy={centerY - 103 - 2} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="48"
+            x={centerX - 348 + 7} 
+            y={centerY - 103 - 2} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            48
+          </text>
+
+          <rect 
+            id="49"
+            x={centerX - 379} 
+            y={centerY - 103 } 
+            width="3.5" 
+            height="6" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="49"
+            cx={centerX - 379 + 7} 
+            cy={centerY - 103 - 2} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="49"
+            x={centerX - 379 + 7} 
+            y={centerY - 103 - 2} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            49
+          </text>
+
+          <rect 
+            id="50"
+            x={centerX - 411} 
+            y={centerY - 85.5 } 
+            width="3.5" 
+            height="5" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="50"
+            cx={centerX - 411 - 3} 
+            cy={centerY - 85.5 + 7} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="50"
+            x={centerX - 411 - 3} 
+            y={centerY - 85.5 + 7} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            50
+          </text>
+
+          <rect 
+            id="51"
+            x={centerX - 393.5} 
+            y={centerY - 115 } 
+            width="3.5" 
+            height="6" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="51"
+            cx={centerX - 393.5 - 3} 
+            cy={centerY - 115 + 7} 
+            r={rayon}
+            fill={popularColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="51"
+            x={centerX - 393.5 - 3} 
+            y={centerY - 115 + 7} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            51
+          </text>
+
+          <rect 
+            id="51"
+            x={centerX - 393.5} 
+            y={centerY - 115 } 
+            width="3.5" 
+            height="6" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="51"
+            cx={centerX - 393.5 - 3} 
+            cy={centerY - 115 + 7} 
+            r={rayon}
+            fill={popularColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="51"
+            x={centerX - 393.5 - 3} 
+            y={centerY - 115 + 7} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            51
+          </text>
+
+          <rect 
+            id="52"
+            x={centerX - 362} 
+            y={centerY - 146 } 
+            width="3.5" 
+            height="6" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="52"
+            cx={centerX - 362 - 3} 
+            cy={centerY - 146 + 7} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="52"
+            x={centerX - 362 - 3} 
+            y={centerY - 146 + 7} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            52
+          </text>
+
+          <rect 
+            id="53"
+            x={centerX - 344.5} 
+            y={centerY - 121 } 
+            width="3.5" 
+            height="6" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="53"
+            cx={centerX - 344.5 + 5} 
+            cy={centerY - 121 - 3} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="53"
+            x={centerX - 344.5 + 5} 
+            y={centerY - 121 - 3} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            53
+          </text>
+
+          <rect 
+            id="54"
+            x={centerX - 330.5} 
+            y={centerY - 115 } 
+            width="3.5" 
+            height="6" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="54"
+            cx={centerX - 330 + 5} 
+            cy={centerY - 115 + 7} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="54"
+            x={centerX - 330 + 5} 
+            y={centerY - 115 + 7} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            54
+          </text>
+
+          <rect 
+            id="55"
+            x={centerX - 323.5} 
+            y={centerY - 121 } 
+            width="3.5" 
+            height="6" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="55"
+            cx={centerX - 323.5 + 5} 
+            cy={centerY - 121 - 3} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="55"
+            x={centerX - 323.5 + 5} 
+            y={centerY - 121 - 3} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            55
+          </text>
+
+          <rect 
+            id="56"
+            x={centerX - 341} 
+            y={centerY - 170 } 
+            width="3.5" 
+            height="6" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="56"
+            cx={centerX - 341 + 5} 
+            cy={centerY - 170 + 7} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="56"
+            x={centerX - 341 + 5} 
+            y={centerY - 170 + 7} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            56
+          </text>
+
+          <rect 
+            id="57"
+            x={centerX - 364.5} 
+            y={centerY - 223 } 
+            width="3.5" 
+            height="6" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="57"
+            cx={centerX - 364.5 + 5} 
+            cy={centerY - 223 + 7} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="57"
+            x={centerX - 364.5 + 5} 
+            y={centerY - 223 + 7} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            57
+          </text>
+
+          <rect 
+            id="58"
+            x={centerX - 406.3} 
+            y={centerY - 223 } 
+            width="3.5" 
+            height="6" 
+            fill={blockColor}
+            opacity={0.5}
+            onClick={handleRectClick} 
+            style={{ cursor: 'pointer' }}
+          />
+          <circle 
+            id="58"
+            cx={centerX - 406.3 + 5} 
+            cy={centerY - 223 + 7} 
+            r={rayon}
+            fill={russColor} 
+            onClick={handleRectClick}  />
+          <text 
+            id="58"
+            x={centerX - 406.3 + 5} 
+            y={centerY - 223 + 7} 
+            fill="white" 
+            fontSize="7" 
+            textAnchor="middle" 
+            alignmentBaseline="middle"
+            onClick={handleRectClick} 
+          >
+            58
+          </text>
 
           
+
+
+
 
 
         </svg>
@@ -507,7 +2255,6 @@ useEffect(() => {
         </div>
       )}
 
-    </div>
     </div>
   );
 };
