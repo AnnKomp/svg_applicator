@@ -117,6 +117,10 @@ const FichierSVG = () => {
   }, [selectedParcoursId]);
 
   function convert(lat: number, lon: number): { x: number, y: number } {
+
+    const currentWidth = isSmallScreen ? MAP_WIDTH / 2 : MAP_WIDTH;
+    const currentHeight = isSmallScreen ? MAP_HEIGHT / 2 : MAP_HEIGHT;
+
     const calculX = ((lon - lonMin) / (lonMax - lonMin)) * MAP_WIDTH;
     const calculY = ((latMax - lat) / (latMax - latMin)) * MAP_HEIGHT;
 
@@ -137,7 +141,10 @@ const FichierSVG = () => {
     const xRotated = Math.cos(rotationRadians) * (x - centerX) - Math.sin(rotationRadians) * (y - centerY) + centerX;
     const yRotated = Math.sin(rotationRadians) * (x - centerX) + Math.cos(rotationRadians) * (y - centerY) + centerY;
 
-    return { x: xRotated, y: yRotated };
+    const { x : xFinal, y : yFinal } = recalculateCoordinates(xRotated, yRotated, currentWidth, currentHeight);
+
+
+    return { x: xFinal, y: yFinal };
   }
 
   const recalculateCoordinates = (x: number, y: number, currentWidth: number, currentHeight: number) => {
