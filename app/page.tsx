@@ -184,6 +184,10 @@ const FichierSVG = () => {
     window.location.href = `https://www.cimetiere-russe.org/${nomSite}`;
   };
 
+  const handlePersonneClick = (nomSite: string) => {
+    window.location.href = `https://www.cimetiere-russe.org/${nomSite}`;
+  };
+
   const handleParcoursChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedParcoursId(event.target.value);
   };
@@ -280,14 +284,15 @@ const FichierSVG = () => {
             <ul key={chunkIndex} className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
               {chunk.map(personne => (
                 <li key={personne.id} className="mt-2">
-                  <label className="inline-flex items-center">
+                  <label className="inline-flex items-center" >
                     <input
                       type="checkbox"
                       checked={!!selectedPersonnes[Number(personne.id)]}
                       onChange={() => handleCheckboxChange(Number(personne.id))}
                       className="form-checkbox h-5 w-5 text-indigo-600"
                     />
-                    <span className="ml-2 text-gray-700">{personne.nom}</span>
+                    <span className="ml-2 text-gray-700"
+                    onClick={() => handlePersonneClick(personne.nom_site)}>{personne.nom}</span>
                   </label>
                 </li>
               ))}
