@@ -37,6 +37,7 @@ const FichierSVG = () => {
   const [selectedParcoursId, setSelectedParcoursId] = useState<string>('1');
   const [selectedPersonnes, setSelectedPersonnes] = useState<SelectedPersonnes>({});
   const [isSmallScreen, setIsSmallScreen] = useState<boolean>(false);
+  const [activeView, setActiveView] = useState<string>('parcours'); // Nouvel état pour gérer la vue active
 
   useEffect(() => {
     const fetchDataPersonnes = async (parcoursId: string) => {
@@ -143,7 +144,6 @@ const FichierSVG = () => {
 
     const { x : xFinal, y : yFinal } = recalculateCoordinates(xRotated, yRotated, currentWidth, currentHeight);
 
-
     return { x: xFinal, y: yFinal };
   }
 
@@ -214,6 +214,22 @@ const FichierSVG = () => {
       <h1 className="mb-4 text-xl md:text-2xl font-bold">
         PLAN DE LA CIMETIERE DE STE GENEVIEVE DES BOIS
       </h1>
+
+      <div className="flex justify-end mb-4">
+        <button
+          className={`mr-2 px-4 py-2 rounded ${activeView === 'parcours' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'}`}
+          onClick={() => setActiveView('parcours')}
+        >
+          Parcours
+        </button>
+        <button
+          className={`px-4 py-2 rounded ${activeView === 'personnalise' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'}`}
+          onClick={() => setActiveView('personnalise')}
+        >
+          Personnalisé
+        </button>
+      </div>
+
       <div className={`w-full h-auto ${isSmallScreen ? 'max-w-full' : 'max-w-4xl'} mx-auto`}>
         <ReactSVGPanZoom
           width={isSmallScreen ? MAP_WIDTH / 2 : MAP_WIDTH}
@@ -235,12 +251,12 @@ const FichierSVG = () => {
               <circle cx={userX} cy={userY} r={rayon} fill="red" />
             )}
 
-            {tombes.map((tombe) => {
+            {activeView === 'parcours' && tombes.map((tombe) => {
               const currentWidth = isSmallScreen ? MAP_WIDTH / 2 : MAP_WIDTH;
               const currentHeight = isSmallScreen ? MAP_HEIGHT / 2 : MAP_HEIGHT;
               const { x, y } = recalculateCoordinates(tombe.x, tombe.y, currentWidth, currentHeight);
-              const width = tombe.vertical ? recalculateWidth(3.5,currentWidth) : recalculateWidth(6,currentWidth);
-              const height = tombe.vertical ? recalculateHeight(6,currentHeight) : recalculateHeight(3.5,currentHeight);
+              const width = tombe.vertical ? recalculateWidth(3.5, currentWidth) : recalculateWidth(6, currentWidth);
+              const height = tombe.vertical ? recalculateHeight(6, currentHeight) : recalculateHeight(3.5, currentHeight);
               const relatedPersonne = personnes.find(personne => personne.tombe === tombe.id);
               const nomSite = relatedPersonne ? relatedPersonne.nom_site : 'unknown';
               return (
@@ -266,40 +282,50 @@ const FichierSVG = () => {
       {loading && <p className="text-center text-gray-500">Loading...</p>}
       {error && <p className="text-center text-red-500">{error}</p>}
 
-      <div className="mt-4 p-4 border border-gray-300 bg-gray-50 rounded">
-        <label htmlFor="parcours-select" className="block mb-2 text-lg font-medium text-gray-700">Choisissez un parcours :</label>
-        <select id="parcours-select" value={selectedParcoursId} onChange={handleParcoursChange} className="block w-full p-2 border border-gray-300 rounded-md">
-          {parcours.map((parcour) => (
-            <option key={parcour.id} value={parcour.id}>
-              {parcour.nom}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="mt-4 p-4 border border-gray-300 bg-gray-50 rounded">
-        <h2 className="text-lg font-medium text-gray-700">Personnes dans le parcours</h2>
-        <div className="flex flex-wrap">
-          {personnesChunks.map((chunk, chunkIndex) => (
-            <ul key={chunkIndex} className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
-              {chunk.map(personne => (
-                <li key={personne.id} className="mt-2">
-                  <label className="inline-flex items-center" >
-                    <input
-                      type="checkbox"
-                      checked={!!selectedPersonnes[Number(personne.id)]}
-                      onChange={() => handleCheckboxChange(Number(personne.id))}
-                      className="form-checkbox h-5 w-5 text-indigo-600"
-                    />
-                    <span className="ml-2 text-gray-700"
-                    onClick={() => handlePersonneClick(personne.nom_site)}>{personne.nom}</span>
-                  </label>
-                </li>
+      {activeView === 'parcours' && (
+        <div>
+          <div className="mt-4 p-4 border border-gray-300 bg-gray-50 rounded">
+            <label htmlFor="parcours-select" className="block mb-2 text-lg font-medium text-gray-700">Choisissez un parcours :</label>
+            <select id="parcours-select" value={selectedParcoursId} onChange={handleParcoursChange} className="block w-full p-2 border border-gray-300 rounded-md">
+              {parcours.map((parcour) => (
+                <option key={parcour.id} value={parcour.id}>
+                  {parcour.nom}
+                </option>
               ))}
-            </ul>
-          ))}
+            </select>
+          </div>
+
+          <div className="mt-4 p-4 border border-gray-300 bg-gray-50 rounded">
+            <h2 className="text-lg font-medium text-gray-700">Personnes dans le parcours</h2>
+            <div className="flex flex-wrap">
+              {personnesChunks.map((chunk, chunkIndex) => (
+                <ul key={chunkIndex} className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
+                  {chunk.map(personne => (
+                    <li key={personne.id} className="mt-2">
+                      <label className="inline-flex items-center" >
+                        <input
+                          type="checkbox"
+                          checked={!!selectedPersonnes[Number(personne.id)]}
+                          onChange={() => handleCheckboxChange(Number(personne.id))}
+                          className="form-checkbox h-5 w-5 text-indigo-600"
+                        />
+                        <span className="ml-2 text-gray-700"
+                        onClick={() => handlePersonneClick(personne.nom_site)}>{personne.nom}</span>
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
+      )}
+
+      {activeView === 'personnalise' && (
+        <div className="mt-4 p-4 border border-gray-300 bg-gray-50 rounded">
+          <p>Un nom ou une tombe : </p><input></input>
+        </div>
+      )}
 
       {userPosition && (
         <div className="mt-4 p-4 border border-gray-300 bg-gray-50 rounded">
