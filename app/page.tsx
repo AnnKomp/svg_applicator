@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { ReactSVGPanZoom, TOOL_NONE } from 'react-svg-pan-zoom';
-import { fetchPersonnesParParcours, fetchTombesByIds, fetchParcours } from './lib/data';
-import { Personne, Tombe, Parcours } from './lib/definitions';
+import { fetchPersonnesParParcours, fetchTombesByIds, fetchParcours, fetchSearchDefunts, fetchSearchTombes, fetchSearchDefuntsParTombe } from './lib/data';
+import { Personne, Tombe, Parcours, Defunt } from './lib/definitions';
 import '../styles/globals.css';
 
 const MAP_WIDTH = 926.59839;
@@ -38,6 +38,10 @@ const FichierSVG = () => {
   const [selectedPersonnes, setSelectedPersonnes] = useState<SelectedPersonnes>({});
   const [isSmallScreen, setIsSmallScreen] = useState<boolean>(false);
   const [activeView, setActiveView] = useState<string>('parcours'); // Nouvel état pour gérer la vue active
+  const [searchInput, setSearchInput] = useState<string>(''); // Nouvel état pour gérer l'entrée de recherche
+  const [searchResults, setSearchResults] = useState<(Tombe | Defunt)[]>([]); // Nouvel état pour stocker les résultats de recherche
+  const [addedItems, setAddedItems] = useState<(Tombe | Defunt)[]>([]); // Nouvel état pour gérer les éléments ajoutés
+  const [additionalTombes, setAdditionalTombes] = useState<Tombe[]>([]); // Nouvel état pour gérer les tombes ajoutées
 
   useEffect(() => {
     const fetchDataPersonnes = async (parcoursId: string) => {
@@ -117,8 +121,26 @@ const FichierSVG = () => {
 
   }, [selectedParcoursId]);
 
-  function convert(lat: number, lon: number): { x: number, y: number } {
+  useEffect(() => {
+    if (addedItems.length > 0) {
+      const tombeIds = addedItems
+        .map(item => ('tombe' in item ? item.tombe : item.id))
+        .filter((id, index, self) => self.indexOf(id) === index); // Suppression des doublons
+      fetchAdditionalTombes(tombeIds);
+    }
+  }, [addedItems]);
 
+  const fetchAdditionalTombes = async (tombeIds: (string | number)[]) => {
+    try {
+      const numericalTombeIds = tombeIds.map(id => typeof id === 'string' ? parseInt(id) : id);
+      const additionalTombesData = await fetchTombesByIds(numericalTombeIds);
+      setAdditionalTombes(additionalTombesData);
+    } catch (error) {
+      console.error('Error fetching additional tombes:', error);
+    }
+  };
+
+  function convert(lat: number, lon: number): { x: number, y: number } {
     const currentWidth = isSmallScreen ? MAP_WIDTH / 2 : MAP_WIDTH;
     const currentHeight = isSmallScreen ? MAP_HEIGHT / 2 : MAP_HEIGHT;
 
@@ -142,7 +164,7 @@ const FichierSVG = () => {
     const xRotated = Math.cos(rotationRadians) * (x - centerX) - Math.sin(rotationRadians) * (y - centerY) + centerX;
     const yRotated = Math.sin(rotationRadians) * (x - centerX) + Math.cos(rotationRadians) * (y - centerY) + centerY;
 
-    const { x : xFinal, y : yFinal } = recalculateCoordinates(xRotated, yRotated, currentWidth, currentHeight);
+    const { x: xFinal, y: yFinal } = recalculateCoordinates(xRotated, yRotated, currentWidth, currentHeight);
 
     return { x: xFinal, y: yFinal };
   }
@@ -155,7 +177,7 @@ const FichierSVG = () => {
 
   const recalculateWidth = (w: number, currentWidth: number) => {
     const scaleX = currentWidth / MAP_WIDTH;
-    return  w * scaleX;
+    return w * scaleX;
   };
 
   const recalculateHeight = (h: number, currentHeight: number) => {
@@ -197,6 +219,36 @@ const FichierSVG = () => {
       ...prevSelectedPersonnes,
       [personneId]: !prevSelectedPersonnes[personneId]
     }));
+  };
+
+  const handleSearchByName = async () => {
+    try {
+      const results = await fetchSearchDefunts(searchInput);
+      setSearchResults(results);
+    } catch (error) {
+      console.error('Error searching by name:', error);
+    }
+  };
+
+  const handleSearchByTombe = async () => {
+    try {
+      const results = await fetchSearchDefuntsParTombe(Number(searchInput));
+      setSearchResults(results);
+    } catch (error) {
+      console.error('Error searching by tombe:', error);
+    }
+  };
+
+  const handleAddItem = (item: Tombe | Defunt) => {
+    setAddedItems((prevItems) => [...prevItems, item]);
+  };
+
+  const handleToggleItem = (item: Tombe | Defunt) => {
+    setAddedItems((prevItems) =>
+      prevItems.some((i) => i.id === item.id)
+        ? prevItems.filter((i) => i.id !== item.id)
+        : [...prevItems, item]
+    );
   };
 
   const chunkArray = (arr: Personne[], chunkSize: number) => {
@@ -242,10 +294,10 @@ const FichierSVG = () => {
           detectWheel={false}
         >
           <svg width={isSmallScreen ? MAP_WIDTH / 2 : MAP_WIDTH}
-          height={isSmallScreen ? MAP_HEIGHT / 2 : MAP_HEIGHT}
-           xmlns="http://www.w3.org/2000/svg">
+            height={isSmallScreen ? MAP_HEIGHT / 2 : MAP_HEIGHT}
+            xmlns="http://www.w3.org/2000/svg">
             <image xlinkHref="/plan_detaille_cimetiere.svg" width={isSmallScreen ? MAP_WIDTH / 2 : MAP_WIDTH}
-          height={isSmallScreen ? MAP_HEIGHT / 2 : MAP_HEIGHT}/>
+              height={isSmallScreen ? MAP_HEIGHT / 2 : MAP_HEIGHT} />
 
             {userX !== null && userY !== null && (
               <circle cx={userX} cy={userY} r={rayon} fill="red" />
@@ -273,6 +325,26 @@ const FichierSVG = () => {
                     onClick={() => handleRectClick(nomSite)}
                   />
                 )
+              );
+            })}
+
+            {activeView === 'personnalise' && additionalTombes.map((tombe) => {
+              const currentWidth = isSmallScreen ? MAP_WIDTH / 2 : MAP_WIDTH;
+              const currentHeight = isSmallScreen ? MAP_HEIGHT / 2 : MAP_HEIGHT;
+              const { x, y } = recalculateCoordinates(tombe.x, tombe.y, currentWidth, currentHeight);
+              const width = tombe.vertical ? recalculateWidth(3.5, currentWidth) : recalculateWidth(6, currentWidth);
+              const height = tombe.vertical ? recalculateHeight(6, currentHeight) : recalculateHeight(3.5, currentHeight);
+              return (
+                <rect
+                  key={tombe.id}
+                  x={x}
+                  y={y}
+                  width={width}
+                  height={height}
+                  fill="red"
+                  opacity={0.8}
+                  onClick={() => handleRectClick(tombe.nom)}
+                />
               );
             })}
           </svg>
@@ -310,7 +382,7 @@ const FichierSVG = () => {
                           className="form-checkbox h-5 w-5 text-indigo-600"
                         />
                         <span className="ml-2 text-gray-700"
-                        onClick={() => handlePersonneClick(personne.nom_site)}>{personne.nom}</span>
+                          onClick={() => handlePersonneClick(personne.nom_site)}>{personne.nom}</span>
                       </label>
                     </li>
                   ))}
@@ -323,7 +395,112 @@ const FichierSVG = () => {
 
       {activeView === 'personnalise' && (
         <div className="mt-4 p-4 border border-gray-300 bg-gray-50 rounded">
-          <p>Un nom ou une tombe : </p><input></input>
+          <p>Un nom ou une tombe : </p>
+          <input
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            className="border border-gray-300 p-2 rounded-md w-full"
+          />
+          <div className="flex justify-between mt-2">
+            <button
+              onClick={handleSearchByName}
+              className="bg-blue-500 text-white px-4 py-2 rounded-md"
+            >
+              Recherche par nom
+            </button>
+            <button
+              onClick={handleSearchByTombe}
+              className="bg-blue-500 text-white px-4 py-2 rounded-md"
+            >
+              Recherche par tombe
+            </button>
+          </div>
+
+          {searchResults.length > 0 && (
+            <div className="mt-4">
+              <h3 className="text-lg font-medium text-gray-700">Résultats de la recherche :</h3>
+              <ul className="mt-2">
+                {searchResults.map((result) => {
+                  if ('carre' in result) {
+                    // Tombe
+                    return (
+                      <li key={result.id} className="mt-2">
+                        <label className="inline-flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={!!addedItems.find((item) => item.id === result.id)}
+                            onChange={() => handleToggleItem(result)}
+                            className="form-checkbox h-5 w-5 text-indigo-600"
+                          />
+                          <span className="ml-2">{result.id}, {result.carre}</span>
+                        </label>
+                      </li>
+                    );
+                  } else {
+                    // Defunt
+                    return (
+                      <li key={result.id} className="mt-2">
+                        <label className="inline-flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={!!addedItems.find((item) => item.id === result.id)}
+                            onChange={() => handleToggleItem(result)}
+                            className="form-checkbox h-5 w-5 text-indigo-600"
+                          />
+                          <span className="ml-2">
+                            <strong>{result.titre}</strong> {result.prenom} {result.nomJFille && `(${result.nomJFille})`} {result.nom} {result.patronyme && `(${result.patronyme})`}
+                          </span>
+                        </label>
+                      </li>
+                    );
+                  }
+                })}
+              </ul>
+            </div>
+          )}
+
+          {addedItems.length > 0 && (
+            <div className="mt-4">
+              <h3 className="text-lg font-medium text-gray-700">Liste des éléments ajoutés :</h3>
+              <ul className="mt-2">
+                {addedItems.map((item) => {
+                  if ('carre' in item) {
+                    // Tombe
+                    return (
+                      <li key={item.id} className="mt-2">
+                        <label className="inline-flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={true}
+                            onChange={() => handleToggleItem(item)}
+                            className="form-checkbox h-5 w-5 text-indigo-600"
+                          />
+                          <span className="ml-2">{item.id}, {item.carre}</span>
+                        </label>
+                      </li>
+                    );
+                  } else {
+                    // Defunt
+                    return (
+                      <li key={item.id} className="mt-2">
+                        <label className="inline-flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={true}
+                            onChange={() => handleToggleItem(item)}
+                            className="form-checkbox h-5 w-5 text-indigo-600"
+                          />
+                          <span className="ml-2">
+                            <strong>{item.titre}</strong> {item.prenom} {item.nomJFille && `(${item.nomJFille})`} {item.nom} {item.patronyme && `(${item.patronyme})`}
+                          </span>
+                        </label>
+                      </li>
+                    );
+                  }
+                })}
+              </ul>
+            </div>
+          )}
         </div>
       )}
 

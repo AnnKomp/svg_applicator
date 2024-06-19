@@ -60,3 +60,63 @@ export async function fetchTombesByIds(ids: number[]) {
     throw new Error('Failed to fetch tombes data.');
   }
 }
+
+export async function fetchSearchDefunts(nom: string) {
+  try {
+    const res = await fetch('/api/defunts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ nom }),
+    });
+    if (!res.ok) {
+      throw new Error('Failed to fetch defunts data.');
+    }
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch Error:', error);
+    throw new Error('Failed to fetch defunts data.');
+  }
+}
+
+export async function fetchSearchDefuntsParTombe(id: number) {
+  try {
+    const res = await fetch('/api/defuntsParTombe', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id }),
+    });
+    if (!res.ok) {
+      throw new Error('Failed to fetch defunts data.');
+    }
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch Error:', error);
+    throw new Error('Failed to fetch defunts data.');
+  }
+}
+
+export async function fetchSearchTombes(id: number) {
+  try {
+    const res = await fetch('/api/searchTombes', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id }),
+    });
+    if (!res.ok) {
+      throw new Error('Failed to fetch tombes data.');
+    }
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch Error:', error);
+    throw new Error('Failed to fetch tombes data.');
+  }
+}
