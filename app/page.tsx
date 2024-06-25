@@ -395,7 +395,7 @@ const FichierSVG = () => {
 
       {activeView === 'personnalise' && (
         <div className="mt-4 p-4 border border-gray-300 bg-gray-50 rounded">
-          <p>Un nom ou une tombe : </p>
+          <p>Un nom d'un défunt ou un numéro d'une tombe : </p>
           <input
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
@@ -461,7 +461,7 @@ const FichierSVG = () => {
 
           {addedItems.length > 0 && (
             <div className="mt-4">
-              <h3 className="text-lg font-medium text-gray-700">Liste des éléments ajoutés :</h3>
+              <h3 className="text-lg font-medium text-gray-700">Liste des défunts ajoutés :</h3>
               <ul className="mt-2">
                 {addedItems.map((item) => {
                   if ('carre' in item) {
