@@ -20,7 +20,6 @@ const latMin = 48.630126;  // bottom right latitude (48.630101)
 const lonMax = 2.348555;   // top right longitude (2.348472)
 
 const rayon = 5;
-let language = 'fr'
 
 interface SelectedDefunts {
   [key: number]: boolean;
@@ -46,7 +45,42 @@ const FichierSVG = () => {
   const [categories, setCategories] = useState<Categorie[]>([]);
   const [selectedCategorie, setSelectedCategorie] = useState<string>('danse');
   const [pageSlugs, setPageSlugs] = useState<{ [key: number]: string }>({});
+  const [language, setLanguage] = useState<string>('ru');
 
+  const translations: { [key: string]: { [key: string]: string } } = {
+    fr: {
+      title: "PLAN DE LA CIMETIERE DE STE-GENEVIEVE-DES-BOIS",
+      chooseCategory: "Choisissez une categorie :",
+      searchPrompt: "Entrez le nom du défunt ou le numéro de la tombe :",
+      searchResults: "Résultats de votre recherche :",
+      addedList: "Liste des personnes ajoutés :",
+      latitude: "Latitude:",
+      longitude: "Longitude:",
+      accuracy: "Accuracy:"
+    },
+    ru: {
+      title: "КЛАДБИЩЕ САН ЖЕНЕВЬЕВ ДЕ БУА",
+      chooseCategory: "Выберите категорию :",
+      searchPrompt: "Введите имя усопшего или номер могилы :",
+      searchResults: "Результаты поиска :",
+      addedList: "Список добавленных :",
+      latitude: "Широта:",
+      longitude: "Долгота:",
+      accuracy: "Точность:"
+    },
+    en: {
+      title: "PLAN OF THE CEMETERY OF STE-GENEVIEVE-DES-BOIS",
+      chooseCategory: "Choose a category :",
+      searchPrompt: "Enter the name of the deceased or the grave number :",
+      searchResults: "Search results :",
+      addedList: "List of added persons :",
+      latitude: "Latitude:",
+      longitude: "Longitude:",
+      accuracy: "Accuracy:"
+    }
+  };
+
+  const t = (key: string) => translations[language][key];
 
   // Redimension de SVG
   useEffect(() => {
@@ -143,7 +177,7 @@ const FichierSVG = () => {
     };
 
     getLocation();
-  }, [selectedCategorie]);
+  }, [selectedCategorie, language]);
 
   useEffect(() => {
     if (addedItems.length > 0) {
@@ -228,6 +262,10 @@ const FichierSVG = () => {
     setSelectedCategorie(event.target.value);
   };
 
+  const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setLanguage(event.target.value);
+  };
+
   const handleCheckboxChange = (defuntId: number) => {
     setSelectedDefunts(prevSelectedDefunts => ({
       ...prevSelectedDefunts,
@@ -289,7 +327,7 @@ const FichierSVG = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="mb-4 text-xl md:text-2xl font-bold">
-        PLAN DE LA CIMETIERE DE STE-GENEVIEVE-DES-BOIS
+        {t('title')}
       </h1>
 
       <div className="flex justify-end mb-4">
@@ -305,6 +343,15 @@ const FichierSVG = () => {
         >
           Personnalisé
         </button>
+        <select
+          value={language}
+          onChange={handleLanguageChange}
+          className="ml-2 px-4 py-2 rounded bg-gray-200 text-gray-800"
+        >
+          <option value="ru">Русский</option>
+          <option value="fr">Français</option>
+          <option value="en">English</option>
+        </select>
       </div>
 
       <div className="flex justify-center">
@@ -388,7 +435,7 @@ const FichierSVG = () => {
       {activeView === 'parcours' && (
         <div>
           <div className="mt-4 p-4 border border-gray-300 bg-gray-50 rounded">
-            <label htmlFor="parcours-select" className="block mb-2 text-lg font-medium text-gray-700">Choisissez une categorie :</label>
+            <label htmlFor="parcours-select" className="block mb-2 text-lg font-medium text-gray-700">{t('chooseCategory')}</label>
             <select id="categorie-select" value={selectedCategorie} onChange={handleCategorieChange} className="block w-full p-2 border border-gray-300 rounded-md">
             {categories.map((cat) => (
                 <option key={cat.categorie} value={cat.categorie}>
@@ -399,7 +446,7 @@ const FichierSVG = () => {
           </div>
 
           <div className="mt-4 p-4 border border-gray-300 bg-gray-50 rounded">
-            <h2 className="text-lg font-medium text-gray-700">Personnes dans le parcours :</h2>
+            <h2 className="text-lg font-medium text-gray-700">{t('searchResults')}</h2>
             <div className="flex flex-wrap">
               {defuntsChunks.map((chunk, chunkIndex) => (
                 <ul key={chunkIndex} className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
@@ -425,7 +472,7 @@ const FichierSVG = () => {
 
       {activeView === 'personnalise' && (
         <div className="mt-4 p-4 border border-gray-300 bg-gray-50 rounded">
-          <p>Entrez le nom du défunt ou le numéro de la tombe : </p>
+          <p>{t('searchPrompt')}</p>
           <input
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
@@ -442,7 +489,7 @@ const FichierSVG = () => {
 
           {searchResults.length > 0 && (
             <div className="mt-4">
-              <h3 className="text-lg font-medium text-gray-700">Résultats de votre recherche :</h3>
+              <h3 className="text-lg font-medium text-gray-700">{t('searchResults')}</h3>
               <ul className="mt-2">
                 {searchResults.map((result) => {
                   if ('carre' in result) {
@@ -485,7 +532,7 @@ const FichierSVG = () => {
 
           {addedItems.length > 0 && (
             <div className="mt-4">
-              <h3 className="text-lg font-medium text-gray-700">Liste des personnes ajoutés :</h3>
+              <h3 className="text-lg font-medium text-gray-700">{t('addedList')}</h3>
               <ul className="mt-2">
                 {addedItems.map((item) => {
                   if ('carre' in item) {
@@ -530,9 +577,9 @@ const FichierSVG = () => {
 
       {userPosition && (
         <div className="mt-4 p-4 border border-gray-300 bg-gray-50 rounded">
-          <p><strong>Latitude:</strong> {userPosition.latitude}</p>
-          <p><strong>Longitude:</strong> {userPosition.longitude}</p>
-          <p><strong>Accuracy:</strong> {userPosition.accuracy} meters</p>
+          <p><strong>{t('latitude')}</strong> {userPosition.latitude}</p>
+          <p><strong>{t('longitude')}</strong> {userPosition.longitude}</p>
+          <p><strong>{t('accuracy')}</strong> {userPosition.accuracy} meters</p>
         </div>
       )}
     </div>
