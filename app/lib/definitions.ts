@@ -1,7 +1,3 @@
-  export type Parcours = {
-    id: number;
-    nom: string;
-  }
 
   ////////////
   export type Tombe = {
@@ -13,18 +9,6 @@
     vertical : boolean;
     photo : string;
   }
-
-  export type Liason = {
-    idparcours: string;
-    idpersonne: string;
-  }
-  
-  export type Personne = {
-    id: string;
-    nom: string;
-    tombe: string;
-    nom_site: string;
-  };
 
   export type Defunt = {
     id : string;
@@ -60,5 +44,5 @@
   }
 
   export type PageSlug = {
-    nom: string;
+    pageSlug: string;
   }

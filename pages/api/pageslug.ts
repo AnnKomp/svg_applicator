@@ -7,11 +7,11 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     connectionString: process.env.SECOND_POSTGRES_URL,
   });
 
-  const { language, defunt_id } = req.query;
+  const { language, defuntid } = req.query;
 
   try {
     await client.connect();
-    const result = await client.query('SELECT "pageSlug" FROM cimetiere.pagecontent p JOIN defunts d ON d.id = p.defunt_id WHERE language = $1 AND p.defunt_id = $2', [language, defunt_id]);
+    const result = await client.query('SELECT "pageSlug" FROM cimetiere.pagecontent p WHERE language = $1 AND p.defunt_id = $2', [language, defuntid]);
     res.status(200).json(result.rows);
   } catch (error) {
     console.error('Database Error:', error);

@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { ReactSVGPanZoom, TOOL_NONE } from 'react-svg-pan-zoom';
-import { fetchTombesByIds, fetchSearchDefunts, fetchSearchDefuntsParTombe, fetchCategories, fetchPersonnesParCategorie } from './lib/data';
-import { Tombe, Defunt, Categorie } from './lib/definitions';
+import { fetchTombesByIds, fetchSearchDefunts, fetchSearchDefuntsParTombe, fetchCategories, fetchPersonnesParCategorie, fetchPageSlug } from './lib/data';
+import { Tombe, Defunt, Categorie, PageSlug } from './lib/definitions';
 import '../styles/globals.css';
 
 const MAP_WIDTH = 926.59839;
@@ -45,6 +45,8 @@ const FichierSVG = () => {
 
   const [categories, setCategories] = useState<Categorie[]>([]);
   const [selectedCategorie, setSelectedCategorie] = useState<string>('danse');
+  const [pageSlugs, setPageSlugs] = useState<{ [key: number]: string }>({});
+
 
   // Redimension de SVG
   useEffect(() => {
@@ -84,6 +86,13 @@ const FichierSVG = () => {
         const tombeIds = defuntsData.map((defunt: { tombe: any; }) => defunt.tombe);
         const tombesData = await fetchTombesByIds(tombeIds);
         setTombes(tombesData);
+
+        const slugs = await Promise.all(defuntsData.map(async (defunt: { id: number; }) => {
+          const slugData = await fetchPageSlug(language, defunt.id);
+          return { [defunt.id]: slugData[0]?.pageSlug };
+        }));
+        setPageSlugs(Object.assign({}, ...slugs));
+    
 
         setLoading(false);
       } catch (error) {
@@ -226,6 +235,13 @@ const FichierSVG = () => {
     }));
   };
 
+  const handleRectClick = (defuntId: number) => {
+    const slug = pageSlugs[defuntId];
+    if (slug) {
+      window.location.href = `https://www.cimetiere-russe.org/${slug}`;
+    }
+  };  
+
   const handleSearch = async () => {
     if (!isNaN(Number(searchInput))) {
       handleSearchByTombe();
@@ -337,6 +353,7 @@ const FichierSVG = () => {
                         height={height}
                         fill="red"
                         opacity={0.8}
+                        onClick={() => handleRectClick(Number(relatedDefunt.id))}
                       />
                     )
                   );
@@ -355,6 +372,7 @@ const FichierSVG = () => {
                       height={height}
                       fill="red"
                       opacity={0.8}
+                      onClick={() => handleRectClick(Number(tombe.id))}
                     />
                   );
                 })}
