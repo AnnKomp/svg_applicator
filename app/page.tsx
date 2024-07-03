@@ -42,8 +42,10 @@ const FichierSVG = () => {
   const [addedItems, setAddedItems] = useState<(Tombe | Defunt)[]>([]); // Nouvel état pour gérer les éléments ajoutés
   const [additionalTombes, setAdditionalTombes] = useState<Tombe[]>([]); // Nouvel état pour gérer les tombes ajoutées
   const [screenWidth, setScreenWidth] = useState<number>(0);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
     if (typeof window !== 'undefined') {
       setScreenWidth(window.innerWidth);
 
@@ -294,74 +296,78 @@ const FichierSVG = () => {
 
       <div className="flex justify-center">
         <div className="w-full h-auto" style={{ maxWidth: `${currentWidth}px`,  paddingRight: `${padding}px` }}>
-          <ReactSVGPanZoom
-            width={currentWidth}
-            height={currentHeight}
-            tool={tool}
-            onChangeTool={handleToolChange}
-            value={value}
-            onChangeValue={handleChangeValue}
-            detectAutoPan={false}
-            detectWheel={false}
-          >
-            <svg width={currentWidth}
+          {isClient && (
+            <ReactSVGPanZoom
+              width={currentWidth}
               height={currentHeight}
-              xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <mask id="minimap-mask">
-                  <rect x="0" y="0" width={MAP_WIDTH} height={MAP_HEIGHT} fill="white" />
-                  <rect x="0" y="470" width="100" height="100" fill="black" />
-                </mask>
-              </defs>
-              <image xlinkHref="/plan_detaille_cimetiere.svg" width={currentWidth}
-                height={currentHeight} mask="url(#minimap-mask)" />
+              tool={tool}
+              onChangeTool={handleToolChange}
+              value={value}
+              onChangeValue={handleChangeValue}
+              detectAutoPan={false}
+              detectWheel={false}
+              miniaturePosition="none"
+              customMiniature="none"
+            >
+              <svg width={currentWidth}
+                height={currentHeight}
+                xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <mask id="minimap-mask">
+                    <rect x="0" y="0" width={MAP_WIDTH} height={MAP_HEIGHT} fill="white" />
+                    <rect x="0" y="470" width="100" height="100" fill="black" />
+                  </mask>
+                </defs>
+                <image xlinkHref="/plan_detaille_cimetiere.svg" width={currentWidth}
+                  height={currentHeight} mask="url(#minimap-mask)" />
 
-              {userX !== null && userY !== null && (
-                <circle cx={userX} cy={userY} r={rayon} fill="red" />
-              )}
+                {userX !== null && userY !== null && (
+                  <circle cx={userX} cy={userY} r={rayon} fill="red" />
+                )}
 
-              {activeView === 'parcours' && tombes.map((tombe) => {
-                const { x, y } = recalculateCoordinates(tombe.x, tombe.y, currentWidth, currentHeight);
-                const width = tombe.vertical ? recalculateWidth(3.5, currentWidth) : recalculateWidth(6, currentWidth);
-                const height = tombe.vertical ? recalculateHeight(6, currentHeight) : recalculateHeight(3.5, currentHeight);
-                const relatedPersonne = personnes.find(personne => personne.tombe === tombe.id);
-                const nomSite = relatedPersonne ? relatedPersonne.nom_site : 'unknown';
-                return (
-                  relatedPersonne && selectedPersonnes[Number(relatedPersonne.id)] && (
+                {activeView === 'parcours' && tombes.map((tombe) => {
+                  const { x, y } = recalculateCoordinates(tombe.x, tombe.y, currentWidth, currentHeight);
+                  const width = tombe.vertical ? recalculateWidth(3.5, currentWidth) : recalculateWidth(6, currentWidth);
+                  const height = tombe.vertical ? recalculateHeight(6, currentHeight) : recalculateHeight(3.5, currentHeight);
+                  const relatedPersonne = personnes.find(personne => personne.tombe === tombe.id);
+                  const nomSite = relatedPersonne ? relatedPersonne.nom_site : 'unknown';
+                  return (
+                    relatedPersonne && selectedPersonnes[Number(relatedPersonne.id)] && (
+                      <rect
+                        key={tombe.id}
+                        id={nomSite}
+                        x={x}
+                        y={y}
+                        width={width}
+                        height={height}
+                        fill="red"
+                        opacity={0.8}
+                        onClick={() => handleRectClick(nomSite)}
+                      />
+                    )
+                  );
+                })}
+
+                {activeView === 'personnalise' && additionalTombes.map((tombe) => {
+                  const { x, y } = recalculateCoordinates(tombe.x, tombe.y, currentWidth, currentHeight);
+                  const width = tombe.vertical ? recalculateWidth(3.5, currentWidth) : recalculateWidth(6, currentWidth);
+                  const height = tombe.vertical ? recalculateHeight(6, currentHeight) : recalculateHeight(3.5, currentHeight);
+                  return (
                     <rect
                       key={tombe.id}
-                      id={nomSite}
                       x={x}
                       y={y}
                       width={width}
                       height={height}
                       fill="red"
                       opacity={0.8}
-                      onClick={() => handleRectClick(nomSite)}
+                      onClick={() => handleRectClick(tombe.nom)}
                     />
-                  )
-                );
-              })}
-
-              {activeView === 'personnalise' && additionalTombes.map((tombe) => {
-                const { x, y } = recalculateCoordinates(tombe.x, tombe.y, currentWidth, currentHeight);
-                const width = tombe.vertical ? recalculateWidth(3.5, currentWidth) : recalculateWidth(6, currentWidth);
-                const height = tombe.vertical ? recalculateHeight(6, currentHeight) : recalculateHeight(3.5, currentHeight);
-                return (
-                  <rect
-                    key={tombe.id}
-                    x={x}
-                    y={y}
-                    width={width}
-                    height={height}
-                    fill="red"
-                    opacity={0.8}
-                    onClick={() => handleRectClick(tombe.nom)}
-                  />
-                );
-              })}
-            </svg>
-          </ReactSVGPanZoom>
+                  );
+                })}
+              </svg>
+            </ReactSVGPanZoom>
+          )}
         </div>
       </div>
 
@@ -382,7 +388,7 @@ const FichierSVG = () => {
           </div>
 
           <div className="mt-4 p-4 border border-gray-300 bg-gray-50 rounded">
-            <h2 className="text-lg font-medium text-gray-700">Personnes dans le parcours</h2>
+            <h2 className="text-lg font-medium text-gray-700">Personnes dans le parcours :</h2>
             <div className="flex flex-wrap">
               {personnesChunks.map((chunk, chunkIndex) => (
                 <ul key={chunkIndex} className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
@@ -409,7 +415,7 @@ const FichierSVG = () => {
 
       {activeView === 'personnalise' && (
         <div className="mt-4 p-4 border border-gray-300 bg-gray-50 rounded">
-          <p>Un nom du défunt ou un numéro de la tombe : </p>
+          <p>Entrez le nom du défunt ou le numéro de la tombe : </p>
           <input
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
@@ -426,7 +432,7 @@ const FichierSVG = () => {
 
           {searchResults.length > 0 && (
             <div className="mt-4">
-              <h3 className="text-lg font-medium text-gray-700">Résultats de la recherche :</h3>
+              <h3 className="text-lg font-medium text-gray-700">Résultats de votre recherche :</h3>
               <ul className="mt-2">
                 {searchResults.map((result) => {
                   if ('carre' in result) {
@@ -469,7 +475,7 @@ const FichierSVG = () => {
 
           {addedItems.length > 0 && (
             <div className="mt-4">
-              <h3 className="text-lg font-medium text-gray-700">Liste des défunts ajoutés :</h3>
+              <h3 className="text-lg font-medium text-gray-700">Liste des personnes ajoutés :</h3>
               <ul className="mt-2">
                 {addedItems.map((item) => {
                   if ('carre' in item) {
