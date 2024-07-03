@@ -11,7 +11,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
   try {
     await client.connect();
-    const result = await client.query('SELECT * FROM defunts d WHERE categorie = $1 and celebrite = true', [categorie]);
+    const result = await client.query('SELECT * FROM cimetiere.defunts d WHERE categorie = $1 and celebrite = true', [categorie]);
     res.status(200).json(result.rows);
   } catch (error) {
     console.error('Database Error:', error);

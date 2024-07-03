@@ -120,3 +120,31 @@ export async function fetchSearchTombes(id: number) {
     throw new Error('Failed to fetch tombes data.');
   }
 }
+
+export async function fetchCategories() {
+  try {
+    const res = await fetch('/api/categories');
+    if (!res.ok) {
+      throw new Error('Failed to fetch categories data.');
+    }
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch Error:', error);
+    throw new Error('Failed to fetch categories data.');
+  }
+}
+
+export async function fetchPersonnesParCategorie(categorie: string) {
+  try {
+    const res = await fetch(`/api/personnesParCategorie?categorie=${categorie}`);
+    if (!res.ok) {
+      throw new Error('Failed to fetch personnes data.');
+    }
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch Error:', error);
+    throw new Error('Failed to fetch personnes data.');
+  }
+}

@@ -54,3 +54,11 @@
     validates : boolean;
     dynPageId : number;
   }
+
+  export type Categorie = {
+    categorie: string;
+  }
+
+  export type PageSlug = {
+    nom: string;
+  }

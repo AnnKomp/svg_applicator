@@ -1,4 +1,4 @@
-// pages/api/categories.ts
+// pages/api/pageslug.ts
 import { NextApiRequest, NextApiResponse } from 'next';
 import { Client } from 'pg';
 
@@ -7,13 +7,15 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     connectionString: process.env.SECOND_POSTGRES_URL,
   });
 
+  const { language, defunt_id } = req.query;
+
   try {
     await client.connect();
-    const result = await client.query(`SELECT categorie FROM cimetiere.defunts d WHERE categorie != '' AND categorie != 'None' AND categorie is not null GROUP BY categorie order by categorie`);
+    const result = await client.query('SELECT "pageSlug" FROM cimetiere.pagecontent p JOIN defunts d ON d.id = p.defunt_id WHERE language = $1 AND p.defunt_id = $2', [language, defunt_id]);
     res.status(200).json(result.rows);
   } catch (error) {
     console.error('Database Error:', error);
-    res.status(500).json({ error: 'Failed to fetch personnes data.' });
+    res.status(500).json({ error: 'Failed to fetch pageslug data.' });
   } finally {
     await client.end();
   }

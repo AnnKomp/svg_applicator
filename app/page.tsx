@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { ReactSVGPanZoom, TOOL_NONE } from 'react-svg-pan-zoom';
-import { fetchPersonnesParParcours, fetchTombesByIds, fetchParcours, fetchSearchDefunts, fetchSearchDefuntsParTombe } from './lib/data';
-import { Personne, Tombe, Parcours, Defunt } from './lib/definitions';
+import { fetchTombesByIds, fetchSearchDefunts, fetchSearchDefuntsParTombe, fetchCategories, fetchPersonnesParCategorie } from './lib/data';
+import { Tombe, Defunt, Categorie } from './lib/definitions';
 import '../styles/globals.css';
 
 const MAP_WIDTH = 926.59839;
@@ -20,8 +20,9 @@ const latMin = 48.630126;  // bottom right latitude (48.630101)
 const lonMax = 2.348555;   // top right longitude (2.348472)
 
 const rayon = 5;
+let language = 'fr'
 
-interface SelectedPersonnes {
+interface SelectedDefunts {
   [key: number]: boolean;
 }
 
@@ -32,18 +33,20 @@ const FichierSVG = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [tombes, setTombes] = useState<Tombe[]>([]);
-  const [personnes, setPersonnes] = useState<Personne[]>([]);
-  const [parcours, setParcours] = useState<Parcours[]>([]);
-  const [selectedParcoursId, setSelectedParcoursId] = useState<string>('1');
-  const [selectedPersonnes, setSelectedPersonnes] = useState<SelectedPersonnes>({});
-  const [activeView, setActiveView] = useState<string>('parcours'); // Nouvel état pour gérer la vue active
-  const [searchInput, setSearchInput] = useState<string>(''); // Nouvel état pour gérer l'entrée de recherche
-  const [searchResults, setSearchResults] = useState<(Tombe | Defunt)[]>([]); // Nouvel état pour stocker les résultats de recherche
-  const [addedItems, setAddedItems] = useState<(Tombe | Defunt)[]>([]); // Nouvel état pour gérer les éléments ajoutés
-  const [additionalTombes, setAdditionalTombes] = useState<Tombe[]>([]); // Nouvel état pour gérer les tombes ajoutées
+  const [defunts, setDefunts] = useState<Defunt[]>([]);
+  const [selectedDefunts, setSelectedDefunts] = useState<SelectedDefunts>({});
+  const [activeView, setActiveView] = useState<string>('parcours'); 
+  const [searchInput, setSearchInput] = useState<string>(''); 
+  const [searchResults, setSearchResults] = useState<(Tombe | Defunt)[]>([]); 
+  const [addedItems, setAddedItems] = useState<(Tombe | Defunt)[]>([]); 
+  const [additionalTombes, setAdditionalTombes] = useState<Tombe[]>([]); 
   const [screenWidth, setScreenWidth] = useState<number>(0);
   const [isClient, setIsClient] = useState(false);
 
+  const [categories, setCategories] = useState<Categorie[]>([]);
+  const [selectedCategorie, setSelectedCategorie] = useState<string>('danse');
+
+  // Redimension de SVG
   useEffect(() => {
     setIsClient(true);
     if (typeof window !== 'undefined') {
@@ -67,40 +70,41 @@ const FichierSVG = () => {
   const currentHeight = (currentWidth / MAP_WIDTH) * MAP_HEIGHT;
 
   useEffect(() => {
-    const fetchDataPersonnes = async (parcoursId: string) => {
+    const fetchDataDefunts = async (categorie: string) => {
       try {
-        const personnesData = await fetchPersonnesParParcours(Number(parcoursId));
-        setPersonnes(personnesData);
+        const defuntsData = await fetchPersonnesParCategorie(categorie);
+        setDefunts(defuntsData);
 
-        const initialSelectedPersonnes: SelectedPersonnes = personnesData.reduce((acc: SelectedPersonnes, personne: Personne) => {
-          acc[Number(personne.id)] = true;
+        const initialSelectedDefunts: SelectedDefunts = defuntsData.reduce((acc: SelectedDefunts, defunt: Defunt) => {
+          acc[Number(defunt.id)] = true;
           return acc;
         }, {});
-        setSelectedPersonnes(initialSelectedPersonnes);
+        setSelectedDefunts(initialSelectedDefunts);
 
-        const tombeIds = personnesData.map((personne: { tombe: any; }) => personne.tombe);
+        const tombeIds = defuntsData.map((defunt: { tombe: any; }) => defunt.tombe);
         const tombesData = await fetchTombesByIds(tombeIds);
         setTombes(tombesData);
 
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching personnes data:', error);
+        console.error('Error fetching defunts data:', error);
         setLoading(false);
       }
     };
 
-    const fetchDataParcours = async () => {
+    const fetchDataCategories = async () => {
       try {
-        const parcoursData = await fetchParcours();
-        setParcours(parcoursData);
+        const categoriesData = await fetchCategories();
+        setCategories(categoriesData);
       } catch (error) {
-        console.error('Error fetching parcours data:', error);
+        console.error('Error fetching categories data:', error);
       }
     };
 
-    fetchDataPersonnes(selectedParcoursId);
-    fetchDataParcours();
+    fetchDataDefunts(selectedCategorie);
+    fetchDataCategories();
 
+    // Recuperation de latitude/longitude utilisateur
     const getLocation = () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -130,7 +134,7 @@ const FichierSVG = () => {
     };
 
     getLocation();
-  }, [selectedParcoursId]);
+  }, [selectedCategorie]);
 
   useEffect(() => {
     if (addedItems.length > 0) {
@@ -151,6 +155,7 @@ const FichierSVG = () => {
     }
   };
 
+  // Conversion de latitude/longitude d'utilisateur vers pixels
   function convert(lat: number, lon: number): { x: number, y: number } {
     const calculX = ((lon - lonMin) / (lonMax - lonMin)) * MAP_WIDTH;
     const calculY = ((latMax - lat) / (latMax - latMin)) * MAP_HEIGHT;
@@ -210,22 +215,14 @@ const FichierSVG = () => {
     setValue(value);
   };
 
-  const handleRectClick = (nomSite: string) => {
-    window.location.href = `https://www.cimetiere-russe.org/${nomSite}`;
+  const handleCategorieChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedCategorie(event.target.value);
   };
 
-  const handlePersonneClick = (nomSite: string) => {
-    window.location.href = `https://www.cimetiere-russe.org/${nomSite}`;
-  };
-
-  const handleParcoursChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedParcoursId(event.target.value);
-  };
-
-  const handleCheckboxChange = (personneId: number) => {
-    setSelectedPersonnes(prevSelectedPersonnes => ({
-      ...prevSelectedPersonnes,
-      [personneId]: !prevSelectedPersonnes[personneId]
+  const handleCheckboxChange = (defuntId: number) => {
+    setSelectedDefunts(prevSelectedDefunts => ({
+      ...prevSelectedDefunts,
+      [defuntId]: !prevSelectedDefunts[defuntId]
     }));
   };
 
@@ -263,7 +260,7 @@ const FichierSVG = () => {
     );
   };
 
-  const chunkArray = (arr: Personne[], chunkSize: number) => {
+  const chunkArray = (arr: Defunt[], chunkSize: number) => {
     const chunks = [];
     for (let i = 0; i < arr.length; i += chunkSize) {
       chunks.push(arr.slice(i, i + chunkSize));
@@ -271,7 +268,7 @@ const FichierSVG = () => {
     return chunks;
   };
 
-  const personnesChunks = chunkArray(personnes, 10);
+  const defuntsChunks = chunkArray(defunts, 10);
 
   return (
     <div className="container mx-auto p-4">
@@ -329,20 +326,17 @@ const FichierSVG = () => {
                   const { x, y } = recalculateCoordinates(tombe.x, tombe.y, currentWidth, currentHeight);
                   const width = tombe.vertical ? recalculateWidth(3.5, currentWidth) : recalculateWidth(6, currentWidth);
                   const height = tombe.vertical ? recalculateHeight(6, currentHeight) : recalculateHeight(3.5, currentHeight);
-                  const relatedPersonne = personnes.find(personne => personne.tombe === tombe.id);
-                  const nomSite = relatedPersonne ? relatedPersonne.nom_site : 'unknown';
+                  const relatedDefunt = defunts.find(defunt => defunt.tombe === tombe.id);
                   return (
-                    relatedPersonne && selectedPersonnes[Number(relatedPersonne.id)] && (
+                    relatedDefunt && selectedDefunts[Number(relatedDefunt.id)] && (
                       <rect
                         key={tombe.id}
-                        id={nomSite}
                         x={x}
                         y={y}
                         width={width}
                         height={height}
                         fill="red"
                         opacity={0.8}
-                        onClick={() => handleRectClick(nomSite)}
                       />
                     )
                   );
@@ -361,7 +355,6 @@ const FichierSVG = () => {
                       height={height}
                       fill="red"
                       opacity={0.8}
-                      onClick={() => handleRectClick(tombe.nom)}
                     />
                   );
                 })}
@@ -377,11 +370,11 @@ const FichierSVG = () => {
       {activeView === 'parcours' && (
         <div>
           <div className="mt-4 p-4 border border-gray-300 bg-gray-50 rounded">
-            <label htmlFor="parcours-select" className="block mb-2 text-lg font-medium text-gray-700">Choisissez un parcours :</label>
-            <select id="parcours-select" value={selectedParcoursId} onChange={handleParcoursChange} className="block w-full p-2 border border-gray-300 rounded-md">
-              {parcours.map((parcour) => (
-                <option key={parcour.id} value={parcour.id}>
-                  {parcour.nom}
+            <label htmlFor="parcours-select" className="block mb-2 text-lg font-medium text-gray-700">Choisissez une categorie :</label>
+            <select id="categorie-select" value={selectedCategorie} onChange={handleCategorieChange} className="block w-full p-2 border border-gray-300 rounded-md">
+            {categories.map((cat) => (
+                <option key={cat.categorie} value={cat.categorie}>
+                  {cat.categorie}
                 </option>
               ))}
             </select>
@@ -390,19 +383,18 @@ const FichierSVG = () => {
           <div className="mt-4 p-4 border border-gray-300 bg-gray-50 rounded">
             <h2 className="text-lg font-medium text-gray-700">Personnes dans le parcours :</h2>
             <div className="flex flex-wrap">
-              {personnesChunks.map((chunk, chunkIndex) => (
+              {defuntsChunks.map((chunk, chunkIndex) => (
                 <ul key={chunkIndex} className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
-                  {chunk.map(personne => (
-                    <li key={personne.id} className="mt-2">
+                  {chunk.map(defunt => (
+                    <li key={defunt.id} className="mt-2">
                       <label className="inline-flex items-center" >
                         <input
                           type="checkbox"
-                          checked={!!selectedPersonnes[Number(personne.id)]}
-                          onChange={() => handleCheckboxChange(Number(personne.id))}
+                          checked={!!selectedDefunts[Number(defunt.id)]}
+                          onChange={() => handleCheckboxChange(Number(defunt.id))}
                           className="form-checkbox h-5 w-5 text-indigo-600"
                         />
-                        <span className="ml-2 text-gray-700"
-                          onClick={() => handlePersonneClick(personne.nom_site)}>{personne.nom}</span>
+                        <span className="ml-2 text-gray-700">{defunt.nom} {defunt.prenom}</span>
                       </label>
                     </li>
                   ))}
